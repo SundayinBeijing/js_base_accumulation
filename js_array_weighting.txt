@@ -1,0 +1,89 @@
+js 数组去重
+
+	说明：a：长度为10w的数组     b：长度为5万的数组
+	
+	1.Array.filter() + indexOf
+		使用 ES6 中的 Array.filter() 遍历数组，并结合 indexOf 来排除重复项
+		function distinct(a, b) {
+			let arr = a.concat(b);//将a和b拼接成一个长度为15万的数组
+			//filter() 方法创建一个新的数组，新数组中的元素是通过检查指定数组中符合条件的所有元素。
+			return arr.filter((item, index)=> {
+				return arr.indexOf(item) === index
+			})
+		}
+		性能：15w的数组耗时8427ms
+		缺点：性能差，且必须是ES6才可以使用
+		
+	2.双重for循环
+		//外层循环遍历元素，内层循环检查是否重复。当有重复值的时候，可以使用 push()，也可以使用 splice()
+		function distinct(a, b) {
+			let arr = a.concat(b);
+			for (let i=0, len=arr.length; i<len; i++) {
+				for (let j=i+1; j<len; j++) {
+					if (arr[i] == arr[j]) {
+						arr.splice(j, 1);
+						// splice 会改变数组长度，所以要将数组长度 len 和下标 j 减一
+						len--;
+						j--;
+					}
+				}
+			}
+			return arr
+		}
+		性能：15w的数组耗时20152ms
+		缺点：效率最低，占用内存较高
+		
+	3.for...of + includes()
+		//和 filter + indexOf 挺类似
+		function distinct(a, b) {
+			let arr = a.concat(b)
+			let result = []
+			for (let i of arr) {
+				!result.includes(i) && result.push(i)
+			}
+			return result
+		}
+		性能：15w的数组耗时8167ms
+		缺点：性能差，且必须是ES6才可以使用
+		
+	4.Array.sort()
+		//首先使用 sort() 将数组进行排序。然后比较相邻元素是否相等，从而排除重复项
+		function distinct(a, b) {
+			let arr = a.concat(b)
+			arr = arr.sort()
+			let result = [arr[0]]
+			
+			for (let i=1, len=arr.length; i<len; i++) {
+				arr[i] !== arr[i-1] && result.push(arr[i])
+			}
+			return result
+		}
+		性能：15w的数组耗时 120ms
+		缺点：暂不知
+		
+	5.new Set()
+		//ES6 新增了 Set 这一数据结构，类似于数组，但 Set 的成员具有唯一性。基于这一特性，就非常适合用来做数组去重了
+		function distinct(a, b) {
+			return Array.from(new Set([...a, ...b]))
+		}
+		性能：15w的数组耗时 57ms   150w的数组耗时678ms
+		缺点：必须是ES6才可以使用
+		
+	6.for...of + Object
+		//首先创建一个空对象，然后用 for 循环遍历。利用对象的属性不会重复这一特性，校验数组元素是否重复
+		function distinct(a, b) {
+			let arr = a.concat(b)
+			let result = []
+			let obj = {}
+
+			for (let i of arr) {
+				if (!obj[i]) {
+					result.push(i)
+					obj[i] = 1
+				}
+			}
+
+			return result
+		}
+		性能：15w的数组耗时 16ms  150w的数组耗时 93ms
+		缺点：数组中不能存放对象，存放对象，则过滤后长度为1
