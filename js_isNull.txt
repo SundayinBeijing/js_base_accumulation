@@ -1,0 +1,4 @@
+1¡¢MapÅĞ¶ÏÊÇ·ñÎª¿Õ
+	if(JSON.stringify(that.checkAllGroupMap) == JSON.stringify({})){
+	
+	}
